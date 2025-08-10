@@ -1,89 +1,75 @@
-<<<<<<< HEAD
-Software Requirements Specification (SRS)
-
-Product: Prompt Version Control and Management Desktop Application
-
-Date: July 7, 2025
-
+Task Management Application - Requirements Specification
 1. Introduction
-
-This product is a Prompt Management and Version Control Tool designed for AI development teams working with large language models (LLMs). It enables teams to efficiently manage prompts, model parameters, and output results in a Git-like structure. The tool provides version tracking, prompt comparisons, A/B testing, and collaborative workflows, while operating securely in local or on-premises environments.
-
-2. Purpose
-
-The purpose of this tool is to:
-
-Facilitate systematic prompt engineering workflows.
-Improve reproducibility and quality control in AI development.
-Support team-based collaboration with safe, auditable prompt versioning.
-Provide an offline-capable desktop application for privacy-conscious organizations.
-3. Target Users
-
-AI/ML Engineers
-Prompt Engineers
-Product Teams developing Generative AI solutions
-AI Researchers
-4. Key Features
-
-4.1 Prompt Versioning
-Git-like commit and branching structure for prompts.
-Each prompt is tracked with metadata, including author, timestamp, model parameters, and output snapshots.
-4.2 Prompt Comparison
-Side-by-side diff viewer for prompt text, model parameters, and output changes.
-Visual highlighting of added, removed, or modified parts of the prompt.
-4.3 Prompt Execution History
-Full history of executed prompts, including input, parameters, model version, and generated outputs.
-Ability to roll back to any previous prompt version.
-4.4 A/B Testing
-Built-in A/B testing module for comparing multiple prompts or model configurations.
-Statistical reporting of performance metrics (e.g., accuracy, user rating, latency).
-4.5 Tagging and Organization
-Tags, folders, and searchable metadata to easily organize and retrieve prompts.
-Filtering by model type, use case, performance score, etc.
-4.6 Local Storage and Offline Mode
-All data is stored locally with optional encrypted backups.
-Fully functional offline without internet access.
-4.7 Multi-user Collaboration
-Supports local network synchronization for multi-user teams.
-Role-based access control (Admin, Editor, Viewer).
-4.8 API Integration
-Optional API to connect with local inference servers (e.g., Ollama, llama.cpp) or external LLM providers.
-4.9 CLI and GUI
-Graphical User Interface (desktop app).
-Command-line interface for advanced users and automation.
-5. Non-Functional Requirements
-
-Cross-platform support: Windows, macOS, Linux.
-Minimal system resource consumption.
-Fast local database (SQLite or similar).
-Encryption at rest for sensitive data.
-Modular design to allow future cloud sync integration.
+1.1 Purpose
+The purpose of this document is to define the requirements for a Task Management Application that enables users to create, organize, and track tasks efficiently.
+1.2 Scope
+The application will allow individuals and teams to manage personal and collaborative tasks, set deadlines, prioritize work, and monitor progress across multiple devices.
+1.3 Definitions
+Task: A unit of work with a title, description, and optional due date.
+Project: A group of related tasks.
+Priority: A value indicating the importance of a task (e.g., Low, Medium, High).
+2. Overall Description
+2.1 Product Perspective
+The product will be a cloud-based web and mobile application accessible through browsers and native mobile apps.
+2.2 User Classes and Characteristics
+Individual Users: Manage personal tasks.
+Team Members: Collaborate on shared projects.
+Administrators: Manage team members, permissions, and settings.
+2.3 Operating Environment
+Web App: Chrome, Safari, Firefox, Edge (latest versions)
+Mobile App: iOS 14+ and Android 10+
+Backend: Cloud-based API with database storage
+3. Functional Requirements
+3.1 User Authentication & Account Management
+Users can register, log in, and log out.
+Support for social login (Google, Apple ID).
+Password reset functionality.
+3.2 Task Management
+Create, edit, and delete tasks.
+Set due dates, priorities, and categories.
+Mark tasks as completed.
+Add notes or attachments to tasks.
+3.3 Project Management
+Group tasks into projects.
+Assign tasks to specific team members.
+Track project progress.
+3.4 Notifications & Reminders
+Push notifications for upcoming deadlines.
+Email reminders for important tasks.
+In-app alerts for assigned tasks.
+3.5 Search & Filter
+Search tasks by title or description.
+Filter tasks by due date, priority, status, or assignee.
+3.6 Collaboration Features
+Real-time updates on shared projects.
+Comment on tasks.
+Mention users in comments.
+3.7 Data Synchronization
+Sync tasks across all user devices in real time.
+4. Non-Functional Requirements
+4.1 Performance
+Task list should load within 2 seconds.
+Support up to 10,000 tasks per user without performance degradation.
+4.2 Security
+All data encrypted in transit (HTTPS) and at rest.
+Role-based access control for team projects.
+Two-factor authentication option.
+4.3 Usability
+Mobile-first responsive design.
+Intuitive navigation with minimal learning curve.
+4.4 Reliability & Availability
+99.9% uptime SLA for cloud services.
+Automatic data backup every 24 hours.
+5. UI/UX Requirements
+Clean, modern interface with customizable themes (light/dark mode).
+Drag-and-drop task prioritization.
+Calendar view for deadlines.
+Dashboard showing task statistics.
 6. Constraints
-
-Must not require a persistent cloud connection.
-Sensitive data must not be uploaded by default.
-Licensing must allow enterprise use and local deployments.
-7. Future Extensions (Optional)
-
-Cloud sync with GitHub/GitLab.
-Integration with prompt performance evaluation APIs.
-Custom model fine-tuning logs integration.
-Automated prompt generation and optimization suggestions.# product-A
-=======
-# product_a
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
->>>>>>> 5941c35 (初期Flutterプロジェクトを作成)
+Must comply with GDPR for user data protection.
+Backend API must be compatible with both web and mobile clients.
+Budget and time constraints to be determined during project planning.
+7. Future Enhancements (Optional)
+AI-based task prioritization.
+Integration with third-party tools (Google Calendar, Slack, Trello).
+Offline mode with local storage synchronization.

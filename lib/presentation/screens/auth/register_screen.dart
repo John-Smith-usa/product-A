@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:gap/gap.dart';
 import '../../../core/theme/app_theme.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -14,39 +12,58 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  bool _agreeToTerms = false;
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleRegister() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      setState(() {
-        _isLoading = true;
-      });
-
+  void _handleRegister() async {
+    if (_formKey.currentState!.validate() && _agreeToTerms) {
+      setState(() => _isLoading = true);
+      
       // Simulate API call
-      await Future.delayed(const Duration(seconds: 1));
-
-      setState(() {
-        _isLoading = false;
-      });
-
+      await Future.delayed(const Duration(seconds: 2));
+      
+      setState(() => _isLoading = false);
+      
       if (mounted) {
-        context.go('/dashboard');
+        // Show success and navigate to login
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Account created successfully! Please sign in.'),
+            backgroundColor: AppTheme.secondaryColor,
+          ),
+        );
+        Navigator.of(context).pushReplacementNamed('/login');
       }
+    }
+  }
+
+  void _handleSocialRegister(String provider) async {
+    setState(() => _isLoading = true);
+    
+    // Simulate social registration
+    await Future.delayed(const Duration(seconds: 1));
+    
+    setState(() => _isLoading = false);
+    
+    if (mounted) {
+      Navigator.of(context).pushReplacementNamed('/dashboard');
     }
   }
 
@@ -54,279 +71,342 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(LucideIcons.arrowLeft),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(AppTheme.spacing24),
+          padding: const EdgeInsets.all(AppTheme.spacing24),
+          child: Form(
+            key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Gap(AppTheme.spacing32),
+                // Title
+                Text(
+                  'Create Account',
+                  style: AppTheme.largeTitle.copyWith(
+                    color: AppTheme.textPrimary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const Gap(AppTheme.spacing8),
+                Text(
+                  'Join TaskFlow and start organizing your tasks',
+                  style: AppTheme.body.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
                 
-                // Back Button
+                const Gap(AppTheme.spacing48),
+                
+                // Name Fields Row
                 Row(
                   children: [
-                    IconButton(
-                      onPressed: () => context.go('/login'),
-                      icon: const Icon(LucideIcons.arrowLeft),
-                      style: IconButton.styleFrom(
-                        backgroundColor: AppTheme.surfaceColor,
-                        foregroundColor: AppTheme.textPrimary,
+                    Expanded(
+                      child: TextFormField(
+                        controller: _firstNameController,
+                        textInputAction: TextInputAction.next,
+                        enabled: !_isLoading,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: const InputDecoration(
+                          labelText: 'First Name',
+                          hintText: 'John',
+                          prefixIcon: Icon(LucideIcons.user),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Required';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                     const Gap(AppTheme.spacing16),
-                    Text(
-                      'Create Account',
-                      style: AppTheme.title2.copyWith(
-                        color: AppTheme.textPrimary,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: TextFormField(
+                        controller: _lastNameController,
+                        textInputAction: TextInputAction.next,
+                        enabled: !_isLoading,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: const InputDecoration(
+                          labelText: 'Last Name',
+                          hintText: 'Doe',
+                          prefixIcon: Icon(LucideIcons.user),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Required';
+                          }
+                          return null;
+                        },
                       ),
                     ),
                   ],
-                ).animate().fadeIn(duration: 600.ms).slideX(
-                  begin: -0.3,
-                  duration: 600.ms,
                 ),
                 
-                const Gap(AppTheme.spacing32),
+                const Gap(AppTheme.spacing20),
                 
-                // Register Form
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Join the community of prompt engineers',
-                        style: AppTheme.body.copyWith(
-                          color: AppTheme.textSecondary,
-                        ),
+                // Email Field
+                TextFormField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  enabled: !_isLoading,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    hintText: 'john.doe@example.com',
+                    prefixIcon: Icon(LucideIcons.mail),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Please enter a valid email';
+                    }
+                    return null;
+                  },
+                ),
+                
+                const Gap(AppTheme.spacing20),
+                
+                // Password Field
+                TextFormField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.next,
+                  enabled: !_isLoading,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    hintText: 'Create a secure password',
+                    prefixIcon: const Icon(LucideIcons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? LucideIcons.eyeOff : LucideIcons.eye,
                       ),
-                      const Gap(AppTheme.spacing32),
-                      
-                      // Full Name Field
-                      TextFormField(
-                        controller: _nameController,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: 'Full Name',
-                          hintText: 'Enter your full name',
-                          prefixIcon: const Icon(LucideIcons.user),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your full name';
-                          }
-                          return null;
-                        },
-                      ).animate().fadeIn(delay: 200.ms, duration: 600.ms).slideX(
-                        begin: -0.3,
-                        duration: 600.ms,
+                      onPressed: () {
+                        setState(() => _obscurePassword = !_obscurePassword);
+                      },
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a password';
+                    }
+                    if (value.length < 8) {
+                      return 'Password must be at least 8 characters';
+                    }
+                    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)').hasMatch(value)) {
+                      return 'Password must contain uppercase, lowercase, and numbers';
+                    }
+                    return null;
+                  },
+                ),
+                
+                const Gap(AppTheme.spacing20),
+                
+                // Confirm Password Field
+                TextFormField(
+                  controller: _confirmPasswordController,
+                  obscureText: _obscureConfirmPassword,
+                  textInputAction: TextInputAction.done,
+                  enabled: !_isLoading,
+                  onFieldSubmitted: (_) => _handleRegister(),
+                  decoration: InputDecoration(
+                    labelText: 'Confirm Password',
+                    hintText: 'Re-enter your password',
+                    prefixIcon: const Icon(LucideIcons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirmPassword ? LucideIcons.eyeOff : LucideIcons.eye,
                       ),
-                      
-                      const Gap(AppTheme.spacing20),
-                      
-                      // Email Field
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          hintText: 'Enter your email address',
-                          prefixIcon: const Icon(LucideIcons.mail),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                              .hasMatch(value)) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
-                      ).animate().fadeIn(delay: 300.ms, duration: 600.ms).slideX(
-                        begin: -0.3,
-                        duration: 600.ms,
-                      ),
-                      
-                      const Gap(AppTheme.spacing20),
-                      
-                      // Password Field
-                      TextFormField(
-                        controller: _passwordController,
-                        obscureText: !_isPasswordVisible,
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          hintText: 'Enter your password',
-                          prefixIcon: const Icon(LucideIcons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible
-                                  ? LucideIcons.eyeOff
-                                  : LucideIcons.eye,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          if (value.length < 8) {
-                            return 'Password must be at least 8 characters';
-                          }
-                          return null;
-                        },
-                      ).animate().fadeIn(delay: 400.ms, duration: 600.ms).slideX(
-                        begin: -0.3,
-                        duration: 600.ms,
-                      ),
-                      
-                      const Gap(AppTheme.spacing20),
-                      
-                      // Confirm Password Field
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        obscureText: !_isConfirmPasswordVisible,
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _handleRegister(),
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          hintText: 'Confirm your password',
-                          prefixIcon: const Icon(LucideIcons.lock),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isConfirmPasswordVisible
-                                  ? LucideIcons.eyeOff
-                                  : LucideIcons.eye,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                              });
-                            },
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please confirm your password';
-                          }
-                          if (value != _passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
-                      ).animate().fadeIn(delay: 500.ms, duration: 600.ms).slideX(
-                        begin: -0.3,
-                        duration: 600.ms,
-                      ),
-                      
-                      const Gap(AppTheme.spacing40),
-                      
-                      // Register Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: _isLoading ? null : _handleRegister,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.primaryColor,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                            ),
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                )
-                              : Text(
-                                  'Create Account',
-                                  style: AppTheme.headline.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                        ),
-                      ).animate().fadeIn(delay: 600.ms, duration: 600.ms).slideY(
-                        begin: 0.3,
-                        duration: 600.ms,
-                      ),
-                      
-                      const Gap(AppTheme.spacing32),
-                      
-                      // Terms and Privacy
-                      Center(
-                        child: Text(
-                          'By creating an account, you agree to our\nTerms of Service and Privacy Policy',
+                      onPressed: () {
+                        setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
+                      },
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm your password';
+                    }
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
+                
+                const Gap(AppTheme.spacing24),
+                
+                // Terms Agreement
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Checkbox(
+                      value: _agreeToTerms,
+                      onChanged: _isLoading ? null : (value) {
+                        setState(() => _agreeToTerms = value ?? false);
+                      },
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    const Gap(AppTheme.spacing8),
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
                           style: AppTheme.footnote.copyWith(
-                            color: AppTheme.textTertiary,
+                            color: AppTheme.textSecondary,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ).animate().fadeIn(delay: 700.ms, duration: 600.ms),
-                      
-                      const Gap(AppTheme.spacing40),
-                      
-                      // Sign In Link
-                      Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              'Already have an account? ',
-                              style: AppTheme.body.copyWith(
-                                color: AppTheme.textSecondary,
+                            const TextSpan(text: 'I agree to the '),
+                            TextSpan(
+                              text: 'Terms of Service',
+                              style: TextStyle(
+                                color: AppTheme.primaryColor,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                context.go('/login');
-                              },
-                              child: Text(
-                                'Sign In',
-                                style: AppTheme.body.copyWith(
-                                  color: AppTheme.primaryColor,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            const TextSpan(text: ' and '),
+                            TextSpan(
+                              text: 'Privacy Policy',
+                              style: TextStyle(
+                                color: AppTheme.primaryColor,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
                         ),
-                      ).animate().fadeIn(delay: 800.ms, duration: 600.ms),
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const Gap(AppTheme.spacing32),
+                
+                // Register Button
+                ElevatedButton(
+                  onPressed: (_isLoading || !_agreeToTerms) ? null : _handleRegister,
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text('Create Account'),
+                ),
+                
+                const Gap(AppTheme.spacing32),
+                
+                // Divider
+                Row(
+                  children: [
+                    const Expanded(child: Divider()),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacing16),
+                      child: Text(
+                        'or',
+                        style: AppTheme.footnote.copyWith(
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ),
+                    const Expanded(child: Divider()),
+                  ],
+                ),
+                
+                const Gap(AppTheme.spacing32),
+                
+                // Social Registration Buttons
+                Column(
+                  children: [
+                    _SocialRegisterButton(
+                      icon: LucideIcons.chrome,
+                      label: 'Continue with Google',
+                      onPressed: _isLoading ? null : () => _handleSocialRegister('google'),
+                    ),
+                    const Gap(AppTheme.spacing16),
+                    _SocialRegisterButton(
+                      icon: LucideIcons.apple,
+                      label: 'Continue with Apple',
+                      onPressed: _isLoading ? null : () => _handleSocialRegister('apple'),
+                    ),
+                  ],
+                ),
+                
+                const Gap(AppTheme.spacing48),
+                
+                // Sign In Link
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Already have an account? ',
+                      style: AppTheme.callout.copyWith(
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: _isLoading ? null : () {
+                        Navigator.of(context).pushReplacementNamed('/login');
+                      },
+                      child: Text(
+                        'Sign In',
+                        style: AppTheme.callout.copyWith(
+                          color: AppTheme.primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SocialRegisterButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onPressed;
+
+  const _SocialRegisterButton({
+    required this.icon,
+    required this.label,
+    this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        side: const BorderSide(color: AppTheme.borderColor),
+        foregroundColor: AppTheme.textPrimary,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.spacing20,
+          vertical: AppTheme.spacing16,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 20),
+          const Gap(AppTheme.spacing12),
+          Text(label),
+        ],
       ),
     );
   }

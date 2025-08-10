@@ -1,336 +1,475 @@
-import '../models/prompt_model.dart';
+import '../models/task_model.dart';
+import '../models/project_model.dart';
+import '../models/user_model.dart';
+import '../models/notification_model.dart';
 
 class MockData {
-  static List<PromptModel> get samplePrompts => [
-    PromptModel(
-      id: '1',
-      title: 'Customer Service Chatbot',
-      content: '''You are a helpful customer service assistant. Your role is to:
-1. Greet customers warmly and professionally
-2. Listen to their concerns and questions
-3. Provide accurate and helpful information
-4. Escalate complex issues to human agents when needed
-5. Always maintain a positive and empathetic tone
-
-When a customer contacts you, start by asking how you can help them today.''',
-      description: 'A comprehensive prompt for customer service chatbot interactions with clear guidelines and escalation procedures.',
-      author: 'Sarah Johnson',
-      createdAt: DateTime.now().subtract(const Duration(days: 5)),
-      updatedAt: DateTime.now().subtract(const Duration(days: 2)),
-      version: 'v1.2.0',
-      tags: ['customer-service', 'chatbot', 'support'],
-      status: PromptStatus.published,
-      modelConfig: const ModelConfig(
-        modelName: 'gpt-4',
-        temperature: 0.7,
-        maxTokens: 1000,
-        topP: 0.9,
-        presencePenalty: 0.0,
-        frequencyPenalty: 0.0,
+  // Mock Users
+  static final List<UserModel> users = [
+    UserModel(
+      id: 'user_1',
+      email: 'john.doe@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      role: UserRole.owner,
+      createdAt: DateTime.now().subtract(const Duration(days: 365)),
+      lastLoginAt: DateTime.now().subtract(const Duration(hours: 2)),
+      preferences: const UserPreferences(
+        darkMode: false,
+        pushNotifications: true,
+        emailNotifications: true,
+        language: 'en',
+        timeZone: 'America/New_York',
+        showCompletedTasks: true,
       ),
-      executionHistory: [
-        PromptExecution(
-          id: 'ex1',
-          promptId: '1',
-          input: 'Hello, I need help with my order',
-          output: 'Hello! I\'d be happy to help you with your order. Could you please provide me with your order number so I can look up the details for you?',
-          executedAt: DateTime.now().subtract(const Duration(hours: 2)),
-          executionTime: const Duration(milliseconds: 1200),
-          modelConfig: const ModelConfig(
-            modelName: 'gpt-4',
-            temperature: 0.7,
-            maxTokens: 1000,
-            topP: 0.9,
-            presencePenalty: 0.0,
-            frequencyPenalty: 0.0,
-          ),
-          rating: 4.5,
-          feedback: 'Very helpful and professional response',
+    ),
+    UserModel(
+      id: 'user_2',
+      email: 'sarah.johnson@example.com',
+      firstName: 'Sarah',
+      lastName: 'Johnson',
+      avatarUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+      role: UserRole.admin,
+      createdAt: DateTime.now().subtract(const Duration(days: 200)),
+      lastLoginAt: DateTime.now().subtract(const Duration(minutes: 30)),
+      preferences: const UserPreferences(
+        darkMode: true,
+        pushNotifications: true,
+        emailNotifications: false,
+        language: 'en',
+        timeZone: 'America/Los_Angeles',
+        showCompletedTasks: false,
+      ),
+    ),
+    UserModel(
+      id: 'user_3',
+      email: 'mike.chen@example.com',
+      firstName: 'Mike',
+      lastName: 'Chen',
+      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      role: UserRole.member,
+      createdAt: DateTime.now().subtract(const Duration(days: 120)),
+      lastLoginAt: DateTime.now().subtract(const Duration(hours: 8)),
+      preferences: const UserPreferences(),
+    ),
+    UserModel(
+      id: 'user_4',
+      email: 'emma.wilson@example.com',
+      firstName: 'Emma',
+      lastName: 'Wilson',
+      role: UserRole.member,
+      createdAt: DateTime.now().subtract(const Duration(days: 90)),
+      lastLoginAt: DateTime.now().subtract(const Duration(days: 1)),
+      preferences: const UserPreferences(
+        darkMode: true,
+        pushNotifications: false,
+      ),
+    ),
+  ];
+
+  // Mock Projects
+  static final List<ProjectModel> projects = [
+    ProjectModel(
+      id: 'project_1',
+      name: 'Mobile App Redesign',
+      description: 'Complete redesign of the mobile application with improved user experience and modern UI components.',
+      status: ProjectStatus.active,
+      createdAt: DateTime.now().subtract(const Duration(days: 45)),
+      updatedAt: DateTime.now().subtract(const Duration(hours: 3)),
+      dueDate: DateTime.now().add(const Duration(days: 30)),
+      ownerId: 'user_1',
+      memberIds: ['user_1', 'user_2', 'user_3'],
+      taskIds: ['task_1', 'task_2', 'task_3', 'task_4'],
+      color: '#007AFF',
+    ),
+    ProjectModel(
+      id: 'project_2',
+      name: 'Backend API Development',
+      description: 'Development of RESTful API endpoints for the new features and performance improvements.',
+      status: ProjectStatus.active,
+      createdAt: DateTime.now().subtract(const Duration(days: 60)),
+      updatedAt: DateTime.now().subtract(const Duration(hours: 1)),
+      dueDate: DateTime.now().add(const Duration(days: 45)),
+      ownerId: 'user_2',
+      memberIds: ['user_2', 'user_3', 'user_4'],
+      taskIds: ['task_5', 'task_6', 'task_7'],
+      color: '#34C759',
+    ),
+    ProjectModel(
+      id: 'project_3',
+      name: 'Marketing Campaign Q1',
+      description: 'Launch marketing campaign for the first quarter with focus on digital channels.',
+      status: ProjectStatus.onHold,
+      createdAt: DateTime.now().subtract(const Duration(days: 20)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 5)),
+      dueDate: DateTime.now().add(const Duration(days: 75)),
+      ownerId: 'user_4',
+      memberIds: ['user_4', 'user_1'],
+      taskIds: ['task_8', 'task_9'],
+      color: '#FF9500',
+    ),
+    ProjectModel(
+      id: 'project_4',
+      name: 'Website Migration',
+      description: 'Migration of existing website to new hosting platform with improved performance.',
+      status: ProjectStatus.completed,
+      createdAt: DateTime.now().subtract(const Duration(days: 90)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 10)),
+      ownerId: 'user_3',
+      memberIds: ['user_3', 'user_2'],
+      taskIds: ['task_10', 'task_11', 'task_12'],
+      color: '#8E8E93',
+    ),
+  ];
+
+  // Mock Tasks
+  static final List<TaskModel> tasks = [
+    TaskModel(
+      id: 'task_1',
+      title: 'Design new login screen',
+      description: 'Create wireframes and mockups for the new login screen with social authentication options.',
+      priority: TaskPriority.high,
+      status: TaskStatus.inProgress,
+      createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      updatedAt: DateTime.now().subtract(const Duration(hours: 2)),
+      dueDate: DateTime.now().add(const Duration(days: 2)),
+      projectId: 'project_1',
+      assignedUserId: 'user_2',
+      authorId: 'user_1',
+      tags: ['design', 'ui/ux', 'authentication'],
+      comments: [
+        TaskComment(
+          id: 'comment_1',
+          taskId: 'task_1',
+          content: 'I\'ve started working on the wireframes. Should be ready for review tomorrow.',
+          authorId: 'user_2',
+          createdAt: DateTime.now().subtract(const Duration(hours: 2)),
         ),
       ],
-      likes: 45,
-      forks: 12,
     ),
-    PromptModel(
-      id: '2',
-      title: 'Technical Documentation Writer',
-      content: '''You are a technical documentation specialist. Your task is to:
-1. Write clear, concise, and comprehensive documentation
-2. Use proper formatting and structure
-3. Include code examples where appropriate
-4. Explain complex concepts in simple terms
-5. Ensure accuracy and consistency
-
-Focus on creating documentation that is accessible to both beginners and experienced developers.''',
-      description: 'Specialized prompt for generating high-quality technical documentation with proper structure and examples.',
-      author: 'Mike Chen',
+    TaskModel(
+      id: 'task_2',
+      title: 'Implement dark mode toggle',
+      description: 'Add dark mode support throughout the application with smooth transitions.',
+      priority: TaskPriority.medium,
+      status: TaskStatus.pending,
+      createdAt: DateTime.now().subtract(const Duration(days: 3)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 3)),
+      dueDate: DateTime.now().add(const Duration(days: 7)),
+      projectId: 'project_1',
+      assignedUserId: 'user_3',
+      authorId: 'user_1',
+      tags: ['development', 'ui', 'feature'],
+    ),
+    TaskModel(
+      id: 'task_3',
+      title: 'User testing for navigation',
+      description: 'Conduct user testing sessions to validate the new navigation structure.',
+      priority: TaskPriority.medium,
+      status: TaskStatus.pending,
+      createdAt: DateTime.now().subtract(const Duration(days: 2)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 2)),
+      dueDate: DateTime.now().add(const Duration(days: 10)),
+      projectId: 'project_1',
+      assignedUserId: 'user_4',
+      authorId: 'user_2',
+      tags: ['testing', 'ux', 'research'],
+    ),
+    TaskModel(
+      id: 'task_4',
+      title: 'Update app icons',
+      description: 'Create and implement new app icons for iOS and Android platforms.',
+      priority: TaskPriority.low,
+      status: TaskStatus.completed,
       createdAt: DateTime.now().subtract(const Duration(days: 10)),
       updatedAt: DateTime.now().subtract(const Duration(days: 1)),
-      version: 'v2.1.0',
-      tags: ['documentation', 'technical-writing', 'developer-tools'],
-      status: PromptStatus.published,
-      modelConfig: const ModelConfig(
-        modelName: 'gpt-4',
-        temperature: 0.3,
-        maxTokens: 2000,
-        topP: 0.8,
-        presencePenalty: 0.1,
-        frequencyPenalty: 0.1,
-      ),
-      executionHistory: [],
-      likes: 73,
-      forks: 28,
+      dueDate: DateTime.now().subtract(const Duration(days: 2)),
+      projectId: 'project_1',
+      assignedUserId: 'user_2',
+      authorId: 'user_1',
+      tags: ['design', 'icons', 'branding'],
     ),
-    PromptModel(
-      id: '3',
-      title: 'Code Review Assistant',
-      content: '''You are a senior software engineer conducting code reviews. Your responsibilities include:
-1. Analyzing code for bugs, security issues, and performance problems
-2. Checking adherence to coding standards and best practices
-3. Suggesting improvements and optimizations
-4. Providing constructive feedback
-5. Highlighting both positive aspects and areas for improvement
-
-Be thorough but constructive in your reviews.''',
-      description: 'Comprehensive code review assistant that provides detailed feedback on code quality, security, and best practices.',
-      author: 'Alex Rodriguez',
-      createdAt: DateTime.now().subtract(const Duration(days: 3)),
-      updatedAt: DateTime.now().subtract(const Duration(hours: 6)),
-      version: 'v1.0.0',
-      tags: ['code-review', 'development', 'quality-assurance'],
-      status: PromptStatus.testing,
-      modelConfig: const ModelConfig(
-        modelName: 'gpt-4',
-        temperature: 0.2,
-        maxTokens: 1500,
-        topP: 0.7,
-        presencePenalty: 0.0,
-        frequencyPenalty: 0.0,
-      ),
-      executionHistory: [],
-      likes: 31,
-      forks: 8,
-    ),
-    PromptModel(
-      id: '4',
-      title: 'Creative Writing Assistant',
-      content: '''You are a creative writing mentor helping authors develop their stories. Your role is to:
-1. Provide inspiration and creative ideas
-2. Help with plot development and character creation
-3. Suggest improvements to narrative structure
-4. Offer feedback on writing style and voice
-5. Encourage creativity while maintaining quality
-
-Help writers unlock their creative potential.''',
-      description: 'A creative writing assistant that helps authors develop compelling stories and improve their writing craft.',
-      author: 'Emma Thompson',
+    TaskModel(
+      id: 'task_5',
+      title: 'Authentication API endpoints',
+      description: 'Develop secure authentication endpoints with JWT token support.',
+      priority: TaskPriority.high,
+      status: TaskStatus.inProgress,
       createdAt: DateTime.now().subtract(const Duration(days: 7)),
+      updatedAt: DateTime.now().subtract(const Duration(hours: 1)),
+      dueDate: DateTime.now().add(const Duration(days: 5)),
+      projectId: 'project_2',
+      assignedUserId: 'user_3',
+      authorId: 'user_2',
+      tags: ['backend', 'api', 'security', 'authentication'],
+    ),
+    TaskModel(
+      id: 'task_6',
+      title: 'Database optimization',
+      description: 'Optimize database queries and add proper indexing for better performance.',
+      priority: TaskPriority.high,
+      status: TaskStatus.pending,
+      createdAt: DateTime.now().subtract(const Duration(days: 4)),
       updatedAt: DateTime.now().subtract(const Duration(days: 4)),
-      version: 'v1.5.0',
-      tags: ['creative-writing', 'storytelling', 'content-creation'],
-      status: PromptStatus.draft,
-      modelConfig: const ModelConfig(
-        modelName: 'gpt-4',
-        temperature: 0.9,
-        maxTokens: 1200,
-        topP: 0.95,
-        presencePenalty: 0.2,
-        frequencyPenalty: 0.2,
-      ),
-      executionHistory: [],
-      likes: 18,
-      forks: 5,
+      dueDate: DateTime.now().add(const Duration(days: 8)),
+      projectId: 'project_2',
+      assignedUserId: 'user_4',
+      authorId: 'user_2',
+      tags: ['database', 'performance', 'optimization'],
     ),
-    PromptModel(
-      id: '5',
-      title: 'Data Analysis Helper',
-      content: '''You are a data analysis expert helping users interpret and analyze data. Your tasks include:
-1. Explaining statistical concepts clearly
-2. Suggesting appropriate analysis methods
-3. Interpreting results and findings
-4. Identifying patterns and trends
-5. Recommending data visualization approaches
-
-Make complex data insights accessible to non-technical users.''',
-      description: 'Expert data analysis assistant that helps users understand and interpret complex data sets and statistical results.',
-      author: 'David Kim',
-      createdAt: DateTime.now().subtract(const Duration(days: 12)),
-      updatedAt: DateTime.now().subtract(const Duration(days: 8)),
-      version: 'v3.0.0',
-      tags: ['data-analysis', 'statistics', 'visualization'],
-      status: PromptStatus.published,
-      modelConfig: const ModelConfig(
-        modelName: 'gpt-4',
-        temperature: 0.4,
-        maxTokens: 1800,
-        topP: 0.8,
-        presencePenalty: 0.0,
-        frequencyPenalty: 0.0,
-      ),
-      executionHistory: [],
-      likes: 92,
-      forks: 34,
+    TaskModel(
+      id: 'task_7',
+      title: 'API documentation',
+      description: 'Create comprehensive API documentation with examples and best practices.',
+      priority: TaskPriority.medium,
+      status: TaskStatus.pending,
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 1)),
+      dueDate: DateTime.now().add(const Duration(days: 15)),
+      projectId: 'project_2',
+      assignedUserId: 'user_2',
+      authorId: 'user_3',
+      tags: ['documentation', 'api'],
     ),
-  ];
-
-  static List<PromptVersion> get sampleVersions => [
-    PromptVersion(
-      id: 'v1',
-      promptId: '1',
-      version: 'v1.2.0',
-      content: 'Updated customer service prompt with better escalation procedures',
-      commitMessage: 'Add escalation procedures and improve greeting',
-      author: 'Sarah Johnson',
-      createdAt: DateTime.now().subtract(const Duration(days: 2)),
-      parentVersionId: 'v2',
-      changedFiles: ['prompt.txt', 'config.json'],
-    ),
-    PromptVersion(
-      id: 'v2',
-      promptId: '1',
-      version: 'v1.1.0',
-      content: 'Added empathy guidelines to customer service prompt',
-      commitMessage: 'Enhance empathy in customer interactions',
-      author: 'Sarah Johnson',
-      createdAt: DateTime.now().subtract(const Duration(days: 5)),
-      parentVersionId: 'v3',
-      changedFiles: ['prompt.txt'],
-    ),
-    PromptVersion(
-      id: 'v3',
-      promptId: '1',
-      version: 'v1.0.0',
-      content: 'Initial customer service chatbot prompt',
-      commitMessage: 'Initial commit: basic customer service prompt',
-      author: 'Sarah Johnson',
+    TaskModel(
+      id: 'task_8',
+      title: 'Social media content calendar',
+      description: 'Plan and create content calendar for social media campaigns.',
+      priority: TaskPriority.medium,
+      status: TaskStatus.pending,
       createdAt: DateTime.now().subtract(const Duration(days: 15)),
-      parentVersionId: null,
-      changedFiles: ['prompt.txt', 'config.json', 'README.md'],
+      updatedAt: DateTime.now().subtract(const Duration(days: 5)),
+      dueDate: DateTime.now().add(const Duration(days: 20)),
+      projectId: 'project_3',
+      assignedUserId: 'user_4',
+      authorId: 'user_4',
+      tags: ['marketing', 'social-media', 'content'],
+    ),
+    TaskModel(
+      id: 'task_9',
+      title: 'Email marketing templates',
+      description: 'Design responsive email templates for marketing campaigns.',
+      priority: TaskPriority.low,
+      status: TaskStatus.pending,
+      createdAt: DateTime.now().subtract(const Duration(days: 12)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 5)),
+      dueDate: DateTime.now().add(const Duration(days: 25)),
+      projectId: 'project_3',
+      assignedUserId: 'user_1',
+      authorId: 'user_4',
+      tags: ['marketing', 'email', 'design'],
+    ),
+    TaskModel(
+      id: 'task_10',
+      title: 'Server setup and configuration',
+      description: 'Set up and configure new server environment for website migration.',
+      priority: TaskPriority.high,
+      status: TaskStatus.completed,
+      createdAt: DateTime.now().subtract(const Duration(days: 80)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 15)),
+      dueDate: DateTime.now().subtract(const Duration(days: 20)),
+      projectId: 'project_4',
+      assignedUserId: 'user_3',
+      authorId: 'user_3',
+      tags: ['infrastructure', 'server', 'migration'],
+    ),
+    TaskModel(
+      id: 'task_11',
+      title: 'Content migration script',
+      description: 'Develop automated script to migrate existing content to new platform.',
+      priority: TaskPriority.high,
+      status: TaskStatus.completed,
+      createdAt: DateTime.now().subtract(const Duration(days: 70)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 12)),
+      dueDate: DateTime.now().subtract(const Duration(days: 15)),
+      projectId: 'project_4',
+      assignedUserId: 'user_2',
+      authorId: 'user_3',
+      tags: ['migration', 'automation', 'content'],
+    ),
+    TaskModel(
+      id: 'task_12',
+      title: 'DNS and SSL setup',
+      description: 'Configure DNS settings and SSL certificates for the new hosting environment.',
+      priority: TaskPriority.medium,
+      status: TaskStatus.completed,
+      createdAt: DateTime.now().subtract(const Duration(days: 65)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 10)),
+      dueDate: DateTime.now().subtract(const Duration(days: 12)),
+      projectId: 'project_4',
+      assignedUserId: 'user_3',
+      authorId: 'user_2',
+      tags: ['infrastructure', 'dns', 'ssl', 'security'],
+    ),
+    // Personal tasks (no project)
+    TaskModel(
+      id: 'task_13',
+      title: 'Review team performance',
+      description: 'Conduct quarterly performance reviews for team members.',
+      priority: TaskPriority.medium,
+      status: TaskStatus.pending,
+      createdAt: DateTime.now().subtract(const Duration(days: 3)),
+      updatedAt: DateTime.now().subtract(const Duration(days: 3)),
+      dueDate: DateTime.now().add(const Duration(days: 5)),
+      assignedUserId: 'user_1',
+      authorId: 'user_1',
+      tags: ['management', 'reviews', 'hr'],
+    ),
+    TaskModel(
+      id: 'task_14',
+      title: 'Prepare monthly report',
+      description: 'Compile and prepare monthly progress report for stakeholders.',
+      priority: TaskPriority.high,
+      status: TaskStatus.pending,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+      dueDate: DateTime.now().add(const Duration(hours: 6)), // Due today
+      assignedUserId: 'user_1',
+      authorId: 'user_1',
+      tags: ['reporting', 'management'],
+    ),
+    TaskModel(
+      id: 'task_15',
+      title: 'Grocery shopping',
+      description: 'Buy groceries for the week including vegetables, fruits, and dairy products.',
+      priority: TaskPriority.low,
+      status: TaskStatus.pending,
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+      updatedAt: DateTime.now().subtract(const Duration(hours: 2)),
+      dueDate: DateTime.now().add(const Duration(hours: 4)), // Due today
+      assignedUserId: 'user_1',
+      authorId: 'user_1',
+      tags: ['personal', 'errands'],
     ),
   ];
 
-  static List<ABTest> get sampleABTests => [
-    ABTest(
-      id: 'ab1',
-      name: 'Customer Service Tone Comparison',
-      description: 'Testing formal vs casual tone in customer service interactions',
-      promptIds: ['1', '2'],
-      startDate: DateTime.now().subtract(const Duration(days: 7)),
-      endDate: DateTime.now().subtract(const Duration(days: 1)),
-      status: ABTestStatus.completed,
-      progress: 1.0,
-      totalParticipants: 298,
-      variantASuccessRate: 0.85,
-      variantBSuccessRate: 0.78,
-      variantAAvgResponseTime: 1.2,
-      variantBAvgResponseTime: 1.1,
-      results: {
-        '1': const ABTestResult(
-          promptId: '1',
-          executionCount: 150,
-          averageRating: 4.2,
-          averageExecutionTime: Duration(milliseconds: 1200),
-          successRate: 0.85,
-        ),
-        '2': const ABTestResult(
-          promptId: '2',
-          executionCount: 148,
-          averageRating: 3.8,
-          averageExecutionTime: Duration(milliseconds: 1100),
-          successRate: 0.78,
-        ),
-      },
+  // Mock Notifications
+  static final List<NotificationModel> notifications = [
+    NotificationModel(
+      id: 'notif_1',
+      userId: 'user_1',
+      type: NotificationType.taskDue,
+      title: 'Task Due Soon',
+      message: 'Your task "Prepare monthly report" is due in 6 hours.',
+      createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
+      isRead: false,
+      actionUrl: '/tasks/task_14',
+      metadata: {'taskId': 'task_14'},
     ),
-    ABTest(
-      id: 'ab2',
-      name: 'Technical Documentation Clarity',
-      description: 'Comparing different approaches to technical explanation',
-      promptIds: ['2', '3'],
-      startDate: DateTime.now().subtract(const Duration(days: 3)),
-      endDate: null,
-      status: ABTestStatus.running,
-      progress: 0.67,
-      totalParticipants: 87,
-      variantASuccessRate: 0.82,
-      variantBSuccessRate: 0.79,
-      variantAAvgResponseTime: 1.8,
-      variantBAvgResponseTime: 1.65,
-      results: {
-        '2': const ABTestResult(
-          promptId: '2',
-          executionCount: 45,
-          averageRating: 4.1,
-          averageExecutionTime: Duration(milliseconds: 1800),
-          successRate: 0.82,
-        ),
-        '3': const ABTestResult(
-          promptId: '3',
-          executionCount: 42,
-          averageRating: 3.9,
-          averageExecutionTime: Duration(milliseconds: 1650),
-          successRate: 0.79,
-        ),
-      },
+    NotificationModel(
+      id: 'notif_2',
+      userId: 'user_1',
+      type: NotificationType.taskCommented,
+      title: 'New Comment',
+      message: 'Sarah Johnson commented on "Design new login screen".',
+      createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+      isRead: false,
+      actionUrl: '/tasks/task_1',
+      metadata: {'taskId': 'task_1', 'commentId': 'comment_1'},
     ),
-    ABTest(
-      id: 'ab3',
-      name: 'Creative Writing Style Test',
-      description: 'Comparing descriptive vs dialogue-heavy writing styles',
-      promptIds: ['4', '5'],
-      startDate: DateTime.now().subtract(const Duration(days: 1)),
-      endDate: null,
-      status: ABTestStatus.paused,
-      progress: 0.25,
-      totalParticipants: 32,
-      variantASuccessRate: 0.75,
-      variantBSuccessRate: 0.81,
-      variantAAvgResponseTime: 2.1,
-      variantBAvgResponseTime: 1.9,
-      results: {
-        '4': const ABTestResult(
-          promptId: '4',
-          executionCount: 16,
-          averageRating: 3.9,
-          averageExecutionTime: Duration(milliseconds: 2100),
-          successRate: 0.75,
-        ),
-        '5': const ABTestResult(
-          promptId: '5',
-          executionCount: 16,
-          averageRating: 4.1,
-          averageExecutionTime: Duration(milliseconds: 1900),
-          successRate: 0.81,
-        ),
-      },
+    NotificationModel(
+      id: 'notif_3',
+      userId: 'user_1',
+      type: NotificationType.taskCompleted,
+      title: 'Task Completed',
+      message: 'Mike Chen completed "Server setup and configuration".',
+      createdAt: DateTime.now().subtract(const Duration(hours: 8)),
+      isRead: true,
+      actionUrl: '/tasks/task_10',
+      metadata: {'taskId': 'task_10'},
+    ),
+    NotificationModel(
+      id: 'notif_4',
+      userId: 'user_1',
+      type: NotificationType.projectUpdate,
+      title: 'Project Update',
+      message: 'Mobile App Redesign project has been updated.',
+      createdAt: DateTime.now().subtract(const Duration(days: 1)),
+      isRead: true,
+      actionUrl: '/projects/project_1',
+      metadata: {'projectId': 'project_1'},
+    ),
+    NotificationModel(
+      id: 'notif_5',
+      userId: 'user_1',
+      type: NotificationType.taskAssigned,
+      title: 'New Task Assigned',
+      message: 'You have been assigned to "Email marketing templates".',
+      createdAt: DateTime.now().subtract(const Duration(days: 2)),
+      isRead: true,
+      actionUrl: '/tasks/task_9',
+      metadata: {'taskId': 'task_9'},
     ),
   ];
 
-  static List<String> get popularTags => [
-    'customer-service',
-    'technical-writing',
-    'code-review',
-    'creative-writing',
-    'data-analysis',
-    'chatbot',
-    'documentation',
-    'development',
-    'content-creation',
-    'analytics',
-    'support',
-    'quality-assurance',
-    'storytelling',
-    'statistics',
-    'automation',
-  ];
+  // Current user (for authentication state)
+  static UserModel get currentUser => users.first;
 
-  static List<String> get recentActivity => [
-    'Sarah Johnson updated Customer Service Chatbot to v1.2.0',
-    'Mike Chen forked Technical Documentation Writer',
-    'Alex Rodriguez started A/B test for Code Review Assistant',
-    'Emma Thompson created new Creative Writing Assistant prompt',
-    'David Kim published Data Analysis Helper v3.0.0',
-    'Sarah Johnson received 5 new likes on Customer Service Chatbot',
-    'Mike Chen added new tags to Technical Documentation Writer',
-    'Alex Rodriguez completed code review for 3 prompts',
-  ];
+  // Helper methods
+  static List<TaskModel> getTasksForProject(String projectId) {
+    return tasks.where((task) => task.projectId == projectId).toList();
+  }
+
+  static List<TaskModel> getTasksForUser(String userId) {
+    return tasks.where((task) => task.assignedUserId == userId).toList();
+  }
+
+  static List<TaskModel> getTasksDueToday() {
+    return tasks.where((task) => task.isDueToday && task.status != TaskStatus.completed).toList();
+  }
+
+  static List<TaskModel> getOverdueTasks() {
+    return tasks.where((task) => task.isOverdue).toList();
+  }
+
+  static List<TaskModel> getTasksDueSoon() {
+    return tasks.where((task) => task.isDueSoon && task.status != TaskStatus.completed).toList();
+  }
+
+  static List<NotificationModel> getUnreadNotifications(String userId) {
+    return notifications.where((notif) => notif.userId == userId && !notif.isRead).toList();
+  }
+
+  static UserModel? getUserById(String userId) {
+    try {
+      return users.firstWhere((user) => user.id == userId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static ProjectModel? getProjectById(String projectId) {
+    try {
+      return projects.firstWhere((project) => project.id == projectId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static TaskModel? getTaskById(String taskId) {
+    try {
+      return tasks.firstWhere((task) => task.id == taskId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static List<ProjectModel> getActiveProjects() {
+    return projects.where((project) => project.status == ProjectStatus.active).toList();
+  }
+
+  static Map<String, int> getDashboardStats() {
+    final activeTasks = tasks.where((task) => task.status != TaskStatus.completed && task.status != TaskStatus.cancelled).length;
+    final completedTasks = tasks.where((task) => task.status == TaskStatus.completed).length;
+    final activeProjects = projects.where((project) => project.status == ProjectStatus.active).length;
+    final overdueTasks = getOverdueTasks().length;
+
+    return {
+      'activeTasks': activeTasks,
+      'completedTasks': completedTasks,
+      'activeProjects': activeProjects,
+      'overdueTasks': overdueTasks,
+    };
+  }
 } 
