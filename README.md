@@ -73,3 +73,7 @@ Budget and time constraints to be determined during project planning.
 AI-based task prioritization.
 Integration with third-party tools (Google Calendar, Slack, Trello).
 Offline mode with local storage synchronization.
+<<<<<<< HEAD
+=======
+>>>>>>> 5941c35 (初期Flutterプロジェクトを作成)
+>>>>>>> 6fbe1cbe73183fa5e51f23bfd6a11a6af2973111
